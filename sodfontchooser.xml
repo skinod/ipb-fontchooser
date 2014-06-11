@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hookexport>
+  <hookdata>
+    <config>
+      <hook_name>FontChooser</hook_name>
+      <hook_desc>Allow users that change board fonts</hook_desc>
+      <hook_author>mr.wosi</hook_author>
+      <hook_email>wolaws@gmail.com</hook_email>
+      <hook_website>skinod.com</hook_website>
+      <hook_update_check/>
+      <hook_requirements><![CDATA[a:3:{s:21:"required_applications";a:0:{}s:20:"hook_php_version_min";s:0:"";s:20:"hook_php_version_max";s:0:"";}]]></hook_requirements>
+      <hook_version_human>1.0.0</hook_version_human>
+      <hook_version_long>1000</hook_version_long>
+      <hook_extra_data><![CDATA[a:4:{s:7:"display";a:3:{s:8:"settings";s:28:"Setting groups: Font Chooser";s:9:"templates";s:29:"From skin_skinod: fontchooser";s:8:"language";s:113:"From core_public_global: sodfonchooser_bdyfnt, sodfonchooser_fntchooser, sodfonchooser_fnts, sodfonchooser_ttlfnt";}s:13:"settingGroups";a:1:{i:0;s:14:"sodfontchooser";}s:9:"templates";a:1:{s:11:"skin_skinod";a:1:{i:0;s:11:"fontchooser";}}s:8:"language";a:1:{s:18:"core_public_global";a:4:{i:0;s:20:"sodfonchooser_bdyfnt";i:1;s:24:"sodfonchooser_fntchooser";i:2;s:18:"sodfonchooser_fnts";i:3;s:20:"sodfonchooser_ttlfnt";}}}]]></hook_extra_data>
+      <hook_key>sodfontchooser</hook_key>
+      <hook_global_caches/>
+    </config>
+  </hookdata>
+  <hookfiles>
+    <file>
+      <hook_file_real>sodfontchooser.php</hook_file_real>
+      <hook_type>templateHooks</hook_type>
+      <hook_classname>sodfontchooser</hook_classname>
+      <hook_data><![CDATA[a:8:{s:12:"dataLocation";s:0:"";s:14:"libApplication";s:0:"";s:15:"classToOverload";s:0:"";s:9:"skinGroup";s:11:"skin_global";s:12:"skinFunction";s:14:"globalTemplate";s:4:"type";s:2:"if";s:2:"id";s:12:"showQuickNav";s:8:"position";s:10:"post.endif";}]]></hook_data>
+      <hooks_source><![CDATA[<?php
+class sodfontchooser {
+	public function __construct() {
+		$this->registry = ipsRegistry::instance();
+		$this->settings   =& $this->registry->fetchSettings();
+		$this->memberData =& $this->registry->member()->fetchMemberData();
+		$this->lang       =  $this->registry->getClass('class_localization');
+	}
+	
+	public function getOutput() {
+		if( !in_array( $this->memberData['member_group_id'] , explode(',', $this->settings['sodfontc_groups'] ))) return;
+		$fonts = array();
+		$fonts['headerfont'] = $this->getOptions($this->settings['sodfontc_hfonts'],'headerfont',$this->settings['sodfontc_dhfont']);
+		$fonts['bodyfont'] = $this->getOptions($this->settings['sodfontc_hfonts'],'bodyfont',$this->settings['sodfontc_dbfont']);
+		return $this->registry->getClass('output')->getTemplate('skinod')->fontchooser($fonts);
+	}
+	
+	public function getOptions($listfonts, $ftype, $def) {
+		$listfonts = explode("\n", $listfonts);
+		if($this->settings['sodfontc_sort']) @sort($listfonts);
+		$options = '';
+		$cookie = IPSCookie::get( $ftype );
+		$selected = ($cookie)?$cookie:$def;
+		$selected = str_replace(' ','+',$selected);
+		foreach($listfonts as $f) {
+			$f = str_replace("\r",'',$f);
+			$f = str_replace("\n",'',$f);
+			$v = str_replace(' ','+',$f); //never mind we can use without + ;)
+			$options .= "<option value='{$v}'". ($v == $selected?' selected="selected"':'') .">{$f}</option>\n";
+		}
+		return $options;
+	}
+}]]></hooks_source>
+    </file>
+  </hookfiles>
+  <hookextras_settings>
+    <setting>
+      <conf_is_title>1</conf_is_title>
+      <conf_title_title>Font Chooser</conf_title_title>
+      <conf_title_desc/>
+      <conf_title_noshow>0</conf_title_noshow>
+      <conf_title_keyword>sodfontchooser</conf_title_keyword>
+      <conf_title_app>core</conf_title_app>
+      <conf_title_tab>Skinod</conf_title_tab>
+    </setting>
+    <setting>
+      <conf_id>350</conf_id>
+      <conf_title>Body Classes</conf_title>
+      <conf_description/>
+      <conf_group>37</conf_group>
+      <conf_type>input</conf_type>
+      <conf_key>sodfontc_bclasses</conf_key>
+      <conf_value/>
+      <conf_default>body, html</conf_default>
+      <conf_extra/>
+      <conf_evalphp/>
+      <conf_protected>1</conf_protected>
+      <conf_position>4</conf_position>
+      <conf_start_group/>
+      <conf_add_cache>1</conf_add_cache>
+      <conf_keywords/>
+      <conf_title_keyword>sodfontchooser</conf_title_keyword>
+      <conf_is_title>0</conf_is_title>
+    </setting>
+    <setting>
+      <conf_id>348</conf_id>
+      <conf_title>Body Fonts Name</conf_title>
+      <conf_description><![CDATA[You can see all font name <a href='http://www.google.com/webfonts'>Here</a>, One per line]]></conf_description>
+      <conf_group>37</conf_group>
+      <conf_type>textarea</conf_type>
+      <conf_key>sodfontc_bfonts</conf_key>
+      <conf_value/>
+      <conf_default>Dancing Script&#13;
+Droid Serif&#13;
+Goudy Bookletter 1911&#13;
+Josefin Sans&#13;
+Nobile&#13;
+Philosopher&#13;
+Quattrocento&#13;
+Raleway&#13;
+Tangerine&#13;
+Stalemate&#13;
+Sacramento&#13;
+Grand Hotel&#13;
+Cinzel Decorative&#13;
+Cutive Mono&#13;
+Nothing You Could Do&#13;
+Baumans&#13;
+Sofadi One&#13;
+Sofia&#13;
+Parisienne&#13;
+Jura&#13;
+Lovers Quarrel&#13;
+Open Sans&#13;
+Overlock&#13;
+Fugaz One&#13;
+Life Savers&#13;
+Exo&#13;
+Rum Raisin&#13;
+Audiowide&#13;
+Tienne&#13;
+Leckerli One</conf_default>
+      <conf_extra/>
+      <conf_evalphp/>
+      <conf_protected>1</conf_protected>
+      <conf_position>3</conf_position>
+      <conf_start_group>Body Font Settings</conf_start_group>
+      <conf_add_cache>1</conf_add_cache>
+      <conf_keywords/>
+      <conf_title_keyword>sodfontchooser</conf_title_keyword>
+      <conf_is_title>0</conf_is_title>
+    </setting>
+    <setting>
+      <conf_id>349</conf_id>
+      <conf_title>Default Body Font Name</conf_title>
+      <conf_description><![CDATA[<b>This can be left blank</b>]]></conf_description>
+      <conf_group>37</conf_group>
+      <conf_type>input</conf_type>
+      <conf_key>sodfontc_dbfont</conf_key>
+      <conf_value/>
+      <conf_default/>
+      <conf_extra/>
+      <conf_evalphp/>
+      <conf_protected>1</conf_protected>
+      <conf_position>5</conf_position>
+      <conf_start_group/>
+      <conf_add_cache>1</conf_add_cache>
+      <conf_keywords/>
+      <conf_title_keyword>sodfontchooser</conf_title_keyword>
+      <conf_is_title>0</conf_is_title>
+    </setting>
+    <setting>
+      <conf_id>352</conf_id>
+      <conf_title>Default Titles Font Name</conf_title>
+      <conf_description>Default body font</conf_description>
+      <conf_group>37</conf_group>
+      <conf_type>input</conf_type>
+      <conf_key>sodfontc_dhfont</conf_key>
+      <conf_value/>
+      <conf_default/>
+      <conf_extra/>
+      <conf_evalphp/>
+      <conf_protected>1</conf_protected>
+      <conf_position>8</conf_position>
+      <conf_start_group/>
+      <conf_add_cache>1</conf_add_cache>
+      <conf_keywords/>
+      <conf_title_keyword>sodfontchooser</conf_title_keyword>
+      <conf_is_title>0</conf_is_title>
+    </setting>
+    <setting>
+      <conf_id>346</conf_id>
+      <conf_title>Groups that can use the font chooser</conf_title>
+      <conf_description/>
+      <conf_group>37</conf_group>
+      <conf_type>multi</conf_type>
+      <conf_key>sodfontc_groups</conf_key>
+      <conf_value/>
+      <conf_default/>
+      <conf_extra>#show_groups#</conf_extra>
+      <conf_evalphp><![CDATA[if ( $save == 1)
+{
+	if ( is_array($_POST['sodfontc_groups']) )
+	{
+		$_POST['sodfontc_groups'] = implode(",",$_POST['sodfontc_groups']);
+	}
+	else
+	{
+		$_POST['sodfontc_groups'] = "";
+	}
+	
+	$key = 'sodfontc_groups';
+}
+if ( $show == 1 )
+{
+	$key = 'sodfontc_groups[]';
+}]]></conf_evalphp>
+      <conf_protected>1</conf_protected>
+      <conf_position>1</conf_position>
+      <conf_start_group/>
+      <conf_add_cache>1</conf_add_cache>
+      <conf_keywords/>
+      <conf_title_keyword>sodfontchooser</conf_title_keyword>
+      <conf_is_title>0</conf_is_title>
+    </setting>
+    <setting>
+      <conf_id>353</conf_id>
+      <conf_title>Titles Classes</conf_title>
+      <conf_description/>
+      <conf_group>37</conf_group>
+      <conf_type>input</conf_type>
+      <conf_key>sodfontc_hclasses</conf_key>
+      <conf_value/>
+      <conf_default>h1,h2,h3,h4,h5,h6</conf_default>
+      <conf_extra/>
+      <conf_evalphp/>
+      <conf_protected>1</conf_protected>
+      <conf_position>7</conf_position>
+      <conf_start_group/>
+      <conf_add_cache>1</conf_add_cache>
+      <conf_keywords/>
+      <conf_title_keyword>sodfontchooser</conf_title_keyword>
+      <conf_is_title>0</conf_is_title>
+    </setting>
+    <setting>
+      <conf_id>351</conf_id>
+      <conf_title>Titles Fonts Name</conf_title>
+      <conf_description><![CDATA[You can see all font name <a href='http://www.google.com/webfonts'>Here</a>, One per line]]></conf_description>
+      <conf_group>37</conf_group>
+      <conf_type>textarea</conf_type>
+      <conf_key>sodfontc_hfonts</conf_key>
+      <conf_value/>
+      <conf_default>Dancing Script&#13;
+Droid Serif&#13;
+Goudy Bookletter 1911&#13;
+Josefin Sans&#13;
+Nobile&#13;
+Philosopher&#13;
+Quattrocento&#13;
+Raleway&#13;
+Tangerine&#13;
+Stalemate&#13;
+Sacramento&#13;
+Grand Hotel&#13;
+Cinzel Decorative&#13;
+Cutive Mono&#13;
+Nothing You Could Do&#13;
+Baumans&#13;
+Sofadi One&#13;
+Sofia&#13;
+Parisienne&#13;
+Jura&#13;
+Lovers Quarrel&#13;
+Open Sans&#13;
+Overlock&#13;
+Fugaz One&#13;
+Life Savers&#13;
+Exo&#13;
+Rum Raisin&#13;
+Audiowide&#13;
+Tienne&#13;
+Leckerli One</conf_default>
+      <conf_extra/>
+      <conf_evalphp/>
+      <conf_protected>1</conf_protected>
+      <conf_position>6</conf_position>
+      <conf_start_group>Titles Font Settings</conf_start_group>
+      <conf_add_cache>1</conf_add_cache>
+      <conf_keywords/>
+      <conf_title_keyword>sodfontchooser</conf_title_keyword>
+      <conf_is_title>0</conf_is_title>
+    </setting>
+    <setting>
+      <conf_id>347</conf_id>
+      <conf_title>Sort fonts?</conf_title>
+      <conf_description>Sort Font Names</conf_description>
+      <conf_group>37</conf_group>
+      <conf_type>yes_no</conf_type>
+      <conf_key>sodfontc_sort</conf_key>
+      <conf_value/>
+      <conf_default>1</conf_default>
+      <conf_extra/>
+      <conf_evalphp/>
+      <conf_protected>1</conf_protected>
+      <conf_position>2</conf_position>
+      <conf_start_group/>
+      <conf_add_cache>1</conf_add_cache>
+      <conf_keywords/>
+      <conf_title_keyword>sodfontchooser</conf_title_keyword>
+      <conf_is_title>0</conf_is_title>
+    </setting>
+  </hookextras_settings>
+  <hookextras_language>
+    <language>
+      <word_app>core</word_app>
+      <word_pack>public_global</word_pack>
+      <word_key>sodfonchooser_fnts</word_key>
+      <word_default>Fonts</word_default>
+    </language>
+    <language>
+      <word_app>core</word_app>
+      <word_pack>public_global</word_pack>
+      <word_key>sodfonchooser_fntchooser</word_key>
+      <word_default>Font chooser</word_default>
+    </language>
+    <language>
+      <word_app>core</word_app>
+      <word_pack>public_global</word_pack>
+      <word_key>sodfonchooser_bdyfnt</word_key>
+      <word_default>Body fonts</word_default>
+    </language>
+    <language>
+      <word_app>core</word_app>
+      <word_pack>public_global</word_pack>
+      <word_key>sodfonchooser_ttlfnt</word_key>
+      <word_default>Titles fonts</word_default>
+    </language>
+  </hookextras_language>
+  <hookextras_modules/>
+  <hookextras_help/>
+  <hookextras_templates>
+    <templates>
+      <template_group>skin_skinod</template_group>
+      <template_content><![CDATA[<li class="right "><a id="nav_sodfontchooser" href="#">{$this->lang->words['sodfonchooser_fnts']} <img src='{$this->settings['img_url']}/useropts_arrow.png' /></a></li>
+	<div id="nav_sodfontchooser_menucontent" style="display: none; position: absolute; z-index: 9999; width:270px;"  class="ipsHeaderMenu clearfix boxShadow" style="z-index: 10000;">
+		<h4 class="ipsType_sectiontitle">{$this->lang->words['sodfonchooser_fntchooser']}</h4>
+		<if test="$this->settings['sodfontc_bclasses']">
+			<div style='position: relative;'>
+				<h5 style='display: block; margin: 3px 0;'>{$this->lang->words['sodfonchooser_bdyfnt']}:</h5>
+				<select id='bodyfont' style='width: 100%;' class="input_select">
+					<option value='0'>--</option>
+					{$fonts['bodyfont']}
+				</select>
+			</div>
+		</if>
+		<if test="$this->settings['sodfontc_hclasses']">
+			<div style='position: relative;'>
+				<h5 style='display: block; margin: 3px 0;'>{$this->lang->words['sodfonchooser_ttlfnt']}:</h5>
+				<select id='headerfont' style='width: 100%;' class="input_select">
+					<option value='0'>--</option>
+					{$fonts['headerfont']}
+				</select>
+			</div>
+		</if>
+	</div>
+	<script type="text/javascript" src="{$this->settings['js_base_url']}js/ips.fontchooser.js"></script>
+	<script type="text/javascript">
+		var fontchooser = new stylepanel('nav_sodfontchooser_menucontent',{
+			<if test="$this->settings['sodfontc_dbfont']">bodyfontdef: "{$this->settings['sodfontc_dbfont']}",</if>
+			<if test="$this->settings['sodfontc_dhfont']">headerfontdef: "{$this->settings['sodfontc_dhfont']}",</if>
+			<if test="$this->settings['sodfontc_bclasses']">bodyfont: "{$this->settings['sodfontc_bclasses']}",</if>
+			<if test="$this->settings['sodfontc_hclasses']">headerfont: "{$this->settings['sodfontc_hclasses']}",</if>
+			fontselect: '<if test="$this->settings['sodfontc_hclasses']">headerfont</if> <if test="$this->settings['sodfontc_bclasses']">bodyfont</if>',
+		});
+	</script>]]></template_content>
+      <template_name>fontchooser</template_name>
+      <template_data>$fonts</template_data>
+      <template_updated>1361212249</template_updated>
+      <template_removable>0</template_removable>
+      <template_added_to>0</template_added_to>
+      <template_user_added>0</template_user_added>
+      <template_user_edited>0</template_user_edited>
+      <template_master_key>root</template_master_key>
+    </templates>
+  </hookextras_templates>
+  <hookextras_css/>
+  <hookextras_replacements/>
+  <hookextras_tasks/>
+  <hookextras_database_create/>
+  <hookextras_database_alter/>
+  <hookextras_database_update/>
+  <hookextras_database_insert/>
+</hookexport>
